@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced File Write and Read Webpage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Textarea Styles */
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            resize: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #007BFF;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: #ffffff;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Response Message Styles */
+        .response {
+            margin-top: 20px;
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        /* File Content Display */
+        .file-content {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Add some spacing and responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                width: 90%;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Write and Read Content from File</h1>
+        <p>Enter the content you want to write to the file:</p>
+        <textarea id="contentInput" placeholder="Type your content here..."></textarea><br>
+        <button onclick="writeToFile()">Submit</button>
+        <div class="response" id="response"></div>
+
+        <hr>
+
+        <h2>Content from File:</h2>
+        <button onclick="readFromFile()">Read File Content</button>
+        <div class="file-content" id="fileContent"></div>
+    </div>
+
+    <script>
+        async function writeToFile() {
+            const content = document.getElementById('contentInput').value;
+            try {
+                const response = await fetch('http://localhost:3000/writefile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await response.text();
+                const responseElement = document.getElementById('response');
+                if (response.ok) {
+                    responseElement.textContent = result;
+                    responseElement.classList.add('success');
+                    responseElement.classList.remove('error');
+                } else {
+                    responseElement.textContent = result;
+                    responseElement.classList.add('error');
+                    responseElement.classList.remove('success');
+                }
+            } catch (error) {
+                document.getElementById('response').textContent = 'Error: ' + error.message;
+                document.getElementById('response').classList.add('error');
+            }
+        }
+
+        async function readFromFile() {
+            try {
+                const response = await fetch('http://localhost:3000/readfile');
+                const content = await response.text();
+                const fileContentElement = document.getElementById('fileContent');
+                if (response.ok) {
+                    fileContentElement.textContent = content;
+                } else {
+                    fileContentElement.textContent = 'Error reading file';
+                }
+            } catch (error) {
+                document.getElementById('fileContent').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
